@@ -1,4 +1,5 @@
-﻿using FirstReact.Core.Models.Dtos;
+﻿using FirstReact.Core.Exceptions;
+using FirstReact.Core.Models.Dtos;
 using FirstReact.Core.Services.Contracts;
 using Microsoft.Extensions.Logging;
 using System;
@@ -25,7 +26,7 @@ namespace FirstReact.Core.Services.Implementations
                 using (StreamReader reader = new StreamReader(stream, Encoding.Latin1))
                 {
                     var header = reader.ReadLine();//header
-                    //reader.
+                    
                     while (!reader.EndOfStream)
                     {
                         var line = reader.ReadLine();
@@ -49,7 +50,7 @@ namespace FirstReact.Core.Services.Implementations
                 throw;
             }
         }
-        public string[] JoinFieldWithCommas(string[] items)
+        private string[] JoinFieldWithCommas(string[] items)
         {
             List<string> fields = new List<string>();
             bool complete = true;
@@ -57,7 +58,7 @@ namespace FirstReact.Core.Services.Implementations
             foreach (var item in items)
             {
                 if ((!complete && item[0] == '\"') || (complete && item[item.Length - 1] == '\"'))
-                    throw new ArgumentException();
+                    throw new BadFileFormatException("Unable to process the file due to format inconsistency.");
                 if (item[0] != '\"' && complete)
                 {
                     fields.Add(item);

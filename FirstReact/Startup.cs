@@ -49,7 +49,7 @@ namespace FirstReact
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions { RequestPath = "/clientapp/build" });
             app.UseSpaStaticFiles();
 
             app.UseRouting();

@@ -13,6 +13,8 @@ export class Home extends Component {
     };
 
     onFileUpload = () => {
+        if (this.state.selectedFile == null)
+            return;
         const formData = new FormData();
 
         formData.append(
@@ -20,8 +22,20 @@ export class Home extends Component {
             this.state.selectedFile
         );
         axios.post("file", formData).then(res => {
-            this.setState({ popularCar: this.getMostRepeatedfunction(res.data.map((i) => i.vehicle)) });
-            this.setState({ contents: Home.renderTable(res.data, this.state.popularCar) });
+            if (res.status == 200) {
+                this.setState({ popularCar: this.getMostRepeatedfunction(res.data.map((i) => i.vehicle)) });
+                this.setState({ contents: Home.renderTable(res.data, this.state.popularCar) });
+            }
+            else {
+                this.setState({ contents: Home.showError(res.statusText) }); 
+            }
+        }).catch(error => {
+            var message = '';
+            if (error.response.data.detail)
+                message = error.response.data.detail;
+            else
+                message = error.response.data;
+            this.setState({ contents: Home.showError(message) });
         });
     };
 
@@ -76,7 +90,13 @@ export class Home extends Component {
             </div>
         );
     }
-
+    static showError(message) {
+        return (
+            <div>
+                <span>{message}</span>
+            </div>
+        );
+    }
     render() {
         return (
             <div>

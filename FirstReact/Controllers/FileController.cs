@@ -1,4 +1,5 @@
-﻿using FirstReact.Core.Models.Dtos;
+﻿using FirstReact.Core.Exceptions;
+using FirstReact.Core.Models.Dtos;
 using FirstReact.Core.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,14 +28,24 @@ namespace FirstReact.Controllers
         public async Task<ActionResult> Create([FromForm] IFormFile formFile)
         {
             List<CarSale> result;
-
-            using (var stream = new MemoryStream())
+            
+            try
             {
-                await formFile.CopyToAsync(stream);
-                stream.Position = 0;
-                result = _fileProcessor.ProcessCsvFile(stream);
+                using (var stream = new MemoryStream())
+                {
+                    await formFile.CopyToAsync(stream);
+                    stream.Position = 0;
+                    result = _fileProcessor.ProcessCsvFile(stream);
+                }
             }
-
+            catch (BadFileFormatException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception)
+            {
+                return Problem("An unexpected error occurred when processing your request.");
+            }
             return Ok(result);
         }
     }
